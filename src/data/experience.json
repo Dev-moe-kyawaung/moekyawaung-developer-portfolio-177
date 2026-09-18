@@ -1,0 +1,71 @@
+[
+  {
+    "id": "role-consulting",
+    "role": "Senior Android Engineer & Mobile Architect",
+    "company": "Independent Consulting (Fintech & Mobility)",
+    "location": "Bangkok, TH & Remote",
+    "dates": "2023 — Present",
+    "summary": "Architected and shipped production Kotlin/Compose systems for regulated fintech and high-volume transit clients.",
+    "milestones": [
+      {
+        "type": "shipped",
+        "text": "Led screen-by-screen Jetpack Compose migration for a 120k-MAU consumer wallet, cutting cold-start P50 by 58% (980ms → 412ms) and holding 99.92% crash-free sessions."
+      },
+      {
+        "type": "shipped",
+        "text": "Engineered GTFS-Realtime protobuf delta ingestion over OkHttp WebSockets + Room, sustaining 60fps map rendering across 5.2M daily vehicle location updates."
+      },
+      {
+        "type": "architecture",
+        "text": "Modularized a 90-screen monolith into 18 feature + core Gradle modules with convention plugins, reducing incremental build times from 6m 10s to 88s."
+      },
+      {
+        "type": "architecture",
+        "text": "Implemented StrongBox Keystore biometric signing, Play Integrity attestation, and CI Macrobenchmark regression gates with zero critical audit findings."
+      }
+    ],
+    "stack": ["Kotlin 2.0", "Jetpack Compose", "Coroutines & Flow", "Room", "Hilt", "Baseline Profiles", "Keystore", "Gradle Convention Plugins"]
+  },
+  {
+    "id": "role-product-teams",
+    "role": "Senior Android Developer",
+    "company": "Regional Product & Health-Tech Teams",
+    "location": "Myanmar & Thailand",
+    "dates": "2021 — 2023",
+    "summary": "Owned offline-first sync engines, Compose design systems, and release automation across multi-squad Android apps.",
+    "milestones": [
+      {
+        "type": "shipped",
+        "text": "Built and shipped the PulseSync offline-first synchronization engine (Room outbox + WorkManager), lifting field sync completion to 99.4% and cutting support tickets by 41%."
+      },
+      {
+        "type": "architecture",
+        "text": "Authored the shared Material 3 Compose design system and token library adopted by 3 product squads, with Robolectric + Compose semantics accessibility tests."
+      },
+      {
+        "type": "architecture",
+        "text": "Replaced manual APK releases with a GitHub Actions + Fastlane pipeline featuring Firebase Emulator security-rule matrices and staged Play Store rollouts."
+      }
+    ],
+    "stack": ["Kotlin", "Jetpack Compose", "WorkManager", "Firebase Firestore", "Retrofit", "MockK & Turbine", "GitHub Actions", "Fastlane"]
+  },
+  {
+    "id": "role-mobile-fullstack",
+    "role": "Android & Full-Stack Mobile Developer",
+    "company": "Lanpya Labs & Independent Delivery",
+    "location": "Yangon / Tachileik, MM",
+    "dates": "2018 — 2021",
+    "summary": "Delivered 15+ production Android and commercial POS applications from concept to Google Play publication.",
+    "milestones": [
+      {
+        "type": "shipped",
+        "text": "Shipped 15+ Android and commercial POS apps (POS Ultimate Pro Max, Job Portal, Social Dashboard, Media Players) reaching 500k+ cumulative installs and a 4.7★ average rating."
+      },
+      {
+        "type": "architecture",
+        "text": "Spearheaded the studio-wide migration from legacy Java + RxJava 2 to Kotlin Coroutines, Room, and Clean Architecture, cutting NPE crash rates by over 60%."
+      }
+    ],
+    "stack": ["Java → Kotlin", "RxJava → Coroutines", "MVVM", "Room SQLite", "Retrofit / OkHttp", "REST APIs", "Play Console"]
+  }
+]

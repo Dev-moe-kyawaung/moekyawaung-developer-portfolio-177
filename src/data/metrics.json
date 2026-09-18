@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "name": "Moe Kyaw Aung",
+    "handle": "Dev-moe-kyawaung",
+    "title": "Senior Android Developer — Kotlin, Jetpack Compose, Clean Architecture",
+    "positioning": "Building offline-first, 60fps Android experiences at scale — from GTFS-Realtime transit pipelines to Play Store-shipped consumer apps.",
+    "availability": "Open to Senior Android roles — Bangkok, APAC & Remote",
+    "trustSignal": "8+ years native Android · GTFS-Realtime transit pipelines, hardware-backed fintech wallets, and offline-first mobile infrastructure.",
+    "location": "Tachileik, MM ↔ Bangkok, TH (UTC+7)",
+    "email": "hello@moekyawaung.dev",
+    "calendly": "https://cal.com/moekyawaung/architecture-chat",
+    "github": "https://github.com/Dev-moe-kyawaung",
+    "linkedin": "https://www.linkedin.com/in/moe-kyaw-aung-2653093a1",
+    "gravatar": "https://gravatar.com/moekyawaung13721",
+    "resumeUrl": "/Moe_Kyaw_Aung_Senior_Android_Resume.pdf",
+    "avatarUrl": "https://res.cloudinary.com/dye5qpwii/image/upload/v1778527878/IMG_20260430_053105_uef0yr.png"
+  },
+  "ticker": [
+    { "id": "apps", "value": "15+", "label": "apps shipped to production" },
+    { "id": "installs", "value": "500k+", "label": "cumulative Play Store installs" },
+    { "id": "crashFree", "value": "99.92%", "label": "crash-free sessions (90d)" },
+    { "id": "coldStart", "value": "412ms", "label": "median cold-start P50" },
+    { "id": "jank", "value": "<0.4%", "label": "Compose frame jank rate" }
+  ]
+}

@@ -1,0 +1,126 @@
+[
+  {
+    "id": "coroutines-vs-flow",
+    "rfcNumber": "RFC-01",
+    "topic": "Concurrency & Streams",
+    "title": "Kotlin Coroutines vs. Flow: Enforcing Cardinality in API Signatures",
+    "metricImpact": "-32% boilerplate allocations · zero leaked subscriptions in ViewModel layer",
+    "context": "Engineers were wrapping every repository call in `Flow<Result<T>>`, including one-shot POST mutations and single-row lookups. Stack traces blurred across operator chains, and callers had to guess whether a function emitted once and completed or stayed hot indefinitely.",
+    "options": [
+      {
+        "name": "Flow<T> for all async boundaries",
+        "summary": "Uniform reactive API, but forces cold-stream allocation, `first()` ceremony on one-shot calls, and ambiguous completion semantics.",
+        "selected": false
+      },
+      {
+        "name": "suspend fun everywhere + manual callbacks",
+        "summary": "Simple for RPCs, but cannot compose database invalidation, WebSocket frames, or multi-source state conflation cleanly.",
+        "selected": false
+      },
+      {
+        "name": "Strict cardinality split: suspend for 1, Flow for N",
+        "summary": "One-shot operations are `suspend fun`; continuous observation (Room tables, WebSockets, sensor streams) returns `Flow<T>`.",
+        "selected": true
+      }
+    ],
+    "decision": "Enforce a strict lint and review rule: if an operation produces at most one value, its signature is `suspend fun` returning a typed result (`Result<T>` or sealed domain error). `Flow<T>` is reserved exclusively for multi-emission streams and converted to `StateFlow` at the ViewModel boundary via `stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), initial)`.",
+    "why": [
+      "The function signature encodes temporal behavior without reading the implementation.",
+      "`WhileSubscribed(5_000)` keeps upstream Room/WebSocket collectors alive across configuration changes while tearing them down 5 seconds after the UI goes to background.",
+      "Structured concurrency (`coroutineScope` + `SupervisorJob`) gives deterministic cancellation and readable stack traces for transactional writes."
+    ]
+  },
+  {
+    "id": "compose-vs-views",
+    "rfcNumber": "RFC-02",
+    "topic": "UI Runtime & Frame Budget",
+    "title": "Jetpack Compose Recomposition Control vs. Legacy View System at Scale",
+    "metricImpact": "Scroll jank cut from 18.2% → 4.9% on 3GB Android 11 reference device",
+    "context": "During a 90-screen fintech migration, a high-frequency transaction feed regressed from 58fps in `RecyclerView` to 44fps in Compose. Layout Inspector revealed 60+ unnecessary row recompositions per fling because domain models held `java.time.Instant` and `kotlin.collections.List`.",
+    "options": [
+      {
+        "name": "Keep complex feeds in RecyclerView / AndroidView",
+        "summary": "Predictable recycling performance, but splits theming, accessibility semantics, and state hosting across two UI toolkits.",
+        "selected": false
+      },
+      {
+        "name": "Patch call sites with remember() and derivedStateOf()",
+        "summary": "Suppresses individual symptoms but leaves unstable parameter types in the Compose compiler report.",
+        "selected": false
+      },
+      {
+        "name": "Compiler-verified stability + lambda state reads + Baseline Profiles",
+        "summary": "Enforce `@Immutable` UI models, `ImmutableList<T>`, method-reference callbacks, and AOT Baseline Profiles.",
+        "selected": true
+      }
+    ],
+    "decision": "Stay 100% Jetpack Compose, enable `-P plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination` in CI, replace `List<T>` in UI state with `kotlinx.collections.immutable.ImmutableList<T>`, wrap external types in `@Immutable` value classes, and ship a Macrobenchmark-generated Baseline Profile with every release.",
+    "why": [
+      "Fixing stability at the type declaration lets the Compose slot table skip entire subtrees in O(1) equality checks.",
+      "Deferring scroll-dependent reads into lambda modifiers (`Modifier.offset { ... }`, `Modifier.drawBehind { ... }`) skips composition and layout phases entirely, running only in draw.",
+      "Baseline Profiles pre-compile hot Compose paths to native machine code at install time, eliminating JIT warmup jank on first launch."
+    ]
+  },
+  {
+    "id": "mvvm-vs-mvi",
+    "rfcNumber": "RFC-03",
+    "topic": "State Architecture",
+    "title": "MVVM vs. MVI for State Management in Complex Multi-Step Screens",
+    "metricImpact": "Zero impossible-state UI bugs in payment & sync flows over 12 months",
+    "context": "Screens with simple read-only lists worked well with classic MVVM, but complex flows (biometric payment confirmation, offline conflict resolution, live transit filtering) accumulated 7–10 independent `MutableStateFlow` fields in a single ViewModel, causing race conditions between loading spinners and error banners.",
+    "options": [
+      {
+        "name": "Pure MVVM with multiple StateFlows per screen",
+        "summary": "Low ceremony on simple screens, but permits exponential combinations of boolean flags (`isLoading && hasError && isSuccess`).",
+        "selected": false
+      },
+      {
+        "name": "Heavyweight Redux/MVI framework across every screen",
+        "summary": "Total determinism, but forces boilerplate reducers and action classes onto trivial settings and static detail screens.",
+        "selected": false
+      },
+      {
+        "name": "Pragmatic MVI: single sealed UiState + unidirectional Intent channel",
+        "summary": "One `StateFlow<UiState>`, one `onIntent(UiIntent)` entry point, and a `Channel<UiEffect>` for one-off navigation/biometric prompts.",
+        "selected": true
+      }
+    ],
+    "decision": "Standardize on a lightweight, zero-dependency MVI contract for interactive screens: a single immutable `UiState` (using sealed interfaces for mutually exclusive screen phases), a pure reducer transition for state mutations, and a `Channel<UiEffect>(Channel.BUFFERED)` consumed with `repeatOnLifecycle(STARTED)` for one-shot side effects.",
+    "why": [
+      "A single `StateFlow<UiState>` guarantees atomic renders — Compose never observes half-updated screen state.",
+      "Testing becomes deterministic: given initial state `S` and intent `I`, assert the exact sequence of emitted states with `Turbine` in <15ms on the JVM.",
+      "Separating `UiEffect` via a buffered `Channel` prevents duplicate biometric dialogs or navigation events on screen rotation."
+    ]
+  },
+  {
+    "id": "offline-first-vs-push",
+    "rfcNumber": "RFC-04",
+    "topic": "Data Synchronization",
+    "title": "Offline-First Sync (WorkManager + Room Outbox) vs. Direct Real-Time Push",
+    "metricImpact": "99.4% mutation delivery across 2G/3G dead zones · -67% stale-state bugs",
+    "context": "Both field operations and urban transit apps face intermittent connectivity, captive portals, and OS background execution limits. Direct REST/WebSocket writes from the UI layer failed silently when the app was backgrounded mid-request or when connections dropped inside tunnels.",
+    "options": [
+      {
+        "name": "Optimistic UI + direct network writes in ViewModel",
+        "summary": "Fastest initial implementation, but process death or Doze mode drops in-flight mutations permanently.",
+        "selected": false
+      },
+      {
+        "name": "Persistent Foreground Service with live socket",
+        "summary": "Immediate push delivery, but triggers user-dismissible notifications on Android 13+ and drains battery.",
+        "selected": false
+      },
+      {
+        "name": "Room Single Source of Truth + Durable Outbox + WorkManager",
+        "summary": "All writes commit locally to an outbox transaction first; WorkManager drains mutations; WebSockets/FCM only trigger delta pulls into Room.",
+        "selected": true
+      }
+    ],
+    "decision": "The UI never reads from the network and never awaits a remote write. Mutations write atomically to a local `Room` entity + `outbox_commands` table with a client UUID, then enqueue a unique `WorkManager` job (`ExistingWorkPolicy.APPEND_OR_REPLACE`) with network constraints and exponential backoff. Real-time WebSockets/FCM act purely as invalidation or delta-ingest signals into Room.",
+    "why": [
+      "Survives process death, device reboot, and airplane mode by construction — the user's work is durable the millisecond the local SQLite transaction commits.",
+      "Client-generated UUID idempotency keys allow WorkManager to retry safely without duplicating financial transfers or field reports.",
+      "Exposing `SyncStatus` (`SYNCED`, `PENDING`, `CONFLICT`) as a column on the Room entity lets the UI render honest freshness indicators without network coupling."
+    ]
+  }
+]

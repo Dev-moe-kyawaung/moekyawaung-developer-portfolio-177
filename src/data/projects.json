@@ -1,0 +1,78 @@
+[
+  {
+    "id": "pulsesync-android",
+    "name": "PulseSync — Offline-First Field & Transit Engine",
+    "category": "Offline-First Sync · Multi-Module",
+    "span": "wide",
+    "monogram": "PS",
+    "accentHue": 151,
+    "problem": "Field and transit operators in low-connectivity corridors lost up to 14% of inspection and telemetry writes during cellular handoffs.",
+    "outcome": "99.4% automatic sync recovery · -41% sync support tickets · 0 data-loss incidents",
+    "metrics": [
+      { "value": "99.4%", "label": "Sync recovery" },
+      { "value": "-41%", "label": "Support volume" },
+      { "value": "0", "label": "Lost mutations" }
+    ],
+    "stack": ["Kotlin 2.0", "Jetpack Compose", "Coroutines & Flow", "Room + SQLCipher", "WorkManager", "Hilt", "Firebase Firestore"],
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=dev.moekyawaung.pulsesync",
+    "githubUrl": "https://github.com/Dev-moe-kyawaung/pulsesync-android",
+    "architectureHighlight": "Durable outbox table in Room with monotonic sequence IDs drained by unique WorkManager chains and field-level LWW conflict resolution."
+  },
+  {
+    "id": "transit-pulse",
+    "name": "TransitPulse — GTFS-Realtime Mobility Client",
+    "category": "GTFS-Realtime · 60fps Maps",
+    "span": "narrow",
+    "monogram": "TP",
+    "accentHue": 168,
+    "problem": "Commuters saw arrival predictions up to 90 seconds stale and duplicate vehicle markers whenever WebSocket connections flapped on 3G.",
+    "outcome": "Reduced cold-start time by 44% · 60fps map pan at 5.2M daily events · -67% stale arrival reports",
+    "metrics": [
+      { "value": "5.2M/d", "label": "Vehicle events" },
+      { "value": "60fps", "label": "Map P95 frame" },
+      { "value": "-67%", "label": "Stale reports" }
+    ],
+    "stack": ["Kotlin", "Compose", "Protobuf / GTFS-RT", "OkHttp WebSocket", "Room", "Maps SDK", "Baseline Profiles"],
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=dev.moekyawaung.transitpulse",
+    "githubUrl": "https://github.com/Dev-moe-kyawaung",
+    "architectureHighlight": "Sequence-numbered protobuf delta ingestion into a normalized Room store; UI observes a single conflated Flow with viewport marker culling."
+  },
+  {
+    "id": "vault-pay",
+    "name": "VaultPay — Hardware-Backed Consumer Wallet",
+    "category": "Fintech · StrongBox Keystore",
+    "span": "narrow",
+    "monogram": "VP",
+    "accentHue": 140,
+    "problem": "A 90-screen legacy Java/XML wallet suffered a 980ms cold start and non-idempotent transfer retries ahead of a mandatory security audit.",
+    "outcome": "Reduced cold-start time by 58% (980ms → 412ms) · 4.8★ rating, 120k+ MAU · 0 critical audit findings",
+    "metrics": [
+      { "value": "412ms", "label": "Cold start P50" },
+      { "value": "4.8★", "label": "120k+ MAU" },
+      { "value": "0", "label": "Audit findings" }
+    ],
+    "stack": ["Kotlin", "Jetpack Compose", "Android Keystore", "BiometricPrompt", "OkHttp Cert Pinning", "Play Integrity", "R8 Full Mode"],
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=dev.moekyawaung.vaultpay",
+    "githubUrl": "https://github.com/Dev-moe-kyawaung",
+    "architectureHighlight": "Client-generated idempotency keys persisted in encrypted Room prior to network dispatch, paired with StrongBox biometric key signing."
+  },
+  {
+    "id": "moekyaw-translator",
+    "name": "MoekyawTranslator & POS Suite",
+    "category": "On-Device AI · Commercial POS",
+    "span": "wide",
+    "monogram": "MT",
+    "accentHue": 160,
+    "problem": "Burmese-speaking merchants needed sub-150ms offline translation and reliable receipt/inventory sync without cloud latency or data egress.",
+    "outcome": "118ms median on-device TFLite inference · 85% local cache hit rate · 10k+ downloads across POS & utility builds",
+    "metrics": [
+      { "value": "118ms", "label": "On-device P50" },
+      { "value": "0 B", "label": "Offline egress" },
+      { "value": "85%", "label": "Cache hit rate" }
+    ],
+    "stack": ["Kotlin", "Compose Multi-Module", "TensorFlow Lite", "Claude API", "Room", "Coroutines", "Baseline Profiles"],
+    "playStoreUrl": "https://play.google.com/store/apps/details?id=dev.moekyawaung.translator",
+    "githubUrl": "https://github.com/moekyawaung-tech/POS-Ultimate-Pro-Max",
+    "architectureHighlight": "Quantized INT8 TFLite model executes on NNAPI/GPU delegate first; opt-in Claude API fallback streams token deltas with strict cost budgets."
+  }
+]
